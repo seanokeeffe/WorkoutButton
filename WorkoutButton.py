@@ -1,9 +1,9 @@
 import serial # Serial connection
-import time # time sleep
 import mysql.connector # database connection
 from random import randint # random numbers
 from multiprocessing import Process # threading
 from csaudio import* # audio playing
+import time
 
 
 
@@ -24,25 +24,54 @@ cursor.execute("SELECT COUNT(*) FROM " + SCHEMA + "." +  TABLE +  ";")
 for (count) in cursor:
     numWorkouts = count[0] # cursor result comes in as tuple, so we only want first element of tuple
 
+# thread for song playing so it doesn't interupt other things
+def playSong():
+     play( "Survivor_EyeOfTheTiger.mp3" )
+
+# data members for workout time tracking
+start = 0
+end = 0
+curWorkoutID = 0
+curWorkoutBestTime = 0
+
 
 def getRandWorkout():
     """
     Gets a random workout from MySQL database.
     :return: N/A
     """
+    global curWorkoutBestTime
+    global curWorkoutID
 
     # Construct SQL Query
-    query = "SELECT NameTop, NameBot, Reps FROM " + SCHEMA + "." + TABLE + " "
+    query = "SELECT ID, NameTop, NameBot, Reps, BestTime FROM " + SCHEMA + "." + TABLE + " "
     workoutId = randint(1,numWorkouts)
     query += "WHERE ID=" + str(workoutId)
 
     cursor.execute(query);
 
     # Get Query results
-    for (nameTop, nameBot, Reps) in cursor:
-        message = nameTop.ljust(14) + str(Reps) + nameBot.ljust(16) # pad string to 16 characters
+    for (id, nameTop, nameBot, reps, bestTime) in cursor:
+        message = nameTop.ljust(14) + str(reps) + nameBot.ljust(16) # pad string to 16 characters
+        curWorkoutBestTime = bestTime
+        curWorkoutID = id
         return message
 
+def sendToSerial(message):
+    global start
+
+    print message
+    ser.write(message.encode())
+    start = time.time()
+
+def updateTime(newTime):
+    global curWorkoutID
+
+    query = "UPDATE " + SCHEMA + "." + TABLE + " SET BestTime=" + str(int(newTime))
+    query += " WHERE ID=" + str(curWorkoutID)
+    print query
+    cursor.execute(query)
+    cnx.commit()
 
 def timeWorkout():
     """
@@ -51,12 +80,13 @@ def timeWorkout():
     Time interval set with variable 'workoutFreq'
     :return: N/A
     """
+    songProcess = Process(target=playSong, args=())
     while True:
         time.sleep(workoutFreq)
         message = getRandWorkout()
-        print message
-        ser.write(message.encode())
-        play( "Survivor_EyeOfTheTiger.mp3" )
+        sendToSerial(message)
+        songProcess.start()
+
 
 def buttonPressWorkout():
     """
@@ -66,16 +96,35 @@ def buttonPressWorkout():
     """
     # time.sleep(5)
     # print "Hi"
+    global start
+    global end
+    global curWorkoutBestTime
+    global curWorkoutID
+
+
     while True:
+        songProcess = Process(target=playSong, args=())
         size = ser.inWaiting()
         if ( size > 0 ):
             pushed = ser.read(size)
+
             if (pushed == "n"):
                 message = getRandWorkout()
-                print message
-                ser.write(message.encode())
-                play( "Survivor_EyeOfTheTiger.mp3" )
+                sendToSerial(message)
+                songProcess.start()
 
+            elif (pushed == "e"):
+                end = time.time()
+                workoutTime = end - start
+                print workoutTime
+                print curWorkoutBestTime
+
+                if (workoutTime < curWorkoutBestTime):
+                    updateTime(workoutTime)
+                    curWorkoutBestTime = 0
+                    curWorkoutID = 0
+                    start = 0
+                    end = 0
 
 if __name__ == "__main__":
     timeProcess = Process(target=timeWorkout, args=())
