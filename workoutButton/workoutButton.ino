@@ -61,6 +61,7 @@ boolean released = false;
 String inData = "";
 String top = "default";
 String bot = "default";
+long startTime = millis();
 
 void setup() {
   Serial.begin(9600);
@@ -124,19 +125,28 @@ void loop() {
     lcd.noCursor();
   }
   
-  // -------------Handle Serial Outputs--------------
+  // -------------Handle Button Events--------------
   if(released){
     lcd.clear();
-    Serial.write('n');
+    if(inProgress) {
+      inProgress = false;
+      Serial.write('e');
+    }else{
+      startTime = millis();
+      Serial.write('n');
+    }
   }
   
   if(buttonState){
     digitalWrite(buttonOutPin, HIGH);
-    if(inProgress) {
-      inProgress = false;
-    }
   }else{
     digitalWrite(buttonOutPin, LOW);
+  }
+  
+  // Display the current time
+  if (millis() - startTime > 500) {
+    lcd.setCursor(12, 1);
+    lcd.print((millis()-startTime)/1000);
   }
   
   delay(12);
