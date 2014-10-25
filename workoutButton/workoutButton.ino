@@ -123,6 +123,10 @@ void loop() {
     lcd.setCursor(0,1);
     lcd.print(bot);
     lcd.noCursor();
+    digitalWrite(buttonOutPin, HIGH);
+    delay(1000);
+    digitalWrite(buttonOutPin, LOW);
+    startTime = millis();
   }
   
   // -------------Handle Button Events--------------
@@ -149,7 +153,7 @@ void loop() {
     if(secs < 10) {lcd.setCursor(14, 1);}
     else if(secs < 100) {lcd.setCursor(13, 1);}
     else if(secs < 1000) {lcd.setCursor(12, 1);}
-    lcd.print((millis()-startTime)/1000);
+    lcd.print(secs);
   }
   
   delay(1);
