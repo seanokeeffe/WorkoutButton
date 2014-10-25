@@ -146,10 +146,13 @@ void loop() {
   // Display the current time
   if ((millis() - startTime > 500)&inProgress) {
     lcd.setCursor(12, 1);
+    int secs = (millis() - startTime)/1000;
+    if(secs < 100) {lcd.print(" ");}
+    else if(secs < 10) {lcd.print("  ");}
     lcd.print((millis()-startTime)/1000);
   }
   
-  delay(12);
+  delay(1);
 }
 
 
