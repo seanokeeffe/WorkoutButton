@@ -1,1 +1,18 @@
-ID,nameTop,nameBot,Group,Reps,BestTime1,Push,Ups,Chest,20,20002,Ab Draw,Leg Slide,Abs,25,20003,Abdominal,Pendulum,Abs,15,20004,Air,Bicycle,Abs,50,20005,Pull Ups,Overhand,Back,5,20006,Dips, ,Arms,20,20007,Air,Squats,Legs,30,20008,Superman, ,Back,30,20009,Crunches, ,Abs,50,200010,Pull Ups,Underhand,Back,15,200011,Wide,PushUps,Chest,20,200012,Diamond,PushUps,Chest,10,2000
+ID,NameTop,NameBot,Group,Reps,BestTime
+1,Push,Ups,Chest,20,33
+2,"Ab Draw","Leg Slide",Abs,25,45
+3,Abdominal,Pendulum,Abs,8,12
+4,Air,Bicycle,Abs,50,13
+5,"Pull Ups",Overhand,Back,5,3
+6,Dips," ",Arms,20,28
+7,Air,Squats,Legs,30,25
+8,Superman," ",Back,30,28
+9,Crunches," ",Abs,50,33
+10,"Pull Ups",Underhand,Back,15,160
+11,Wide,PushUps,Chest,15,6
+12,Diamond,PushUps,Chest,10,26
+13,Dolphin,PushUps,Shoulders,12,2000
+14,Plyo,PushUps,Chest,15,2000
+15,Pistols," ",Legs,10,2000
+16,Lying,"Arm Raises",Shoulders,30,NULL
+17,L-Seat," ",Abs,30,NULL
