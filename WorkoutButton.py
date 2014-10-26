@@ -17,7 +17,7 @@ ser = serial.Serial("/dev/tty.AdafruitEZ-Link48a4-SPP",9600);
 # database details
 SCHEMA = "workoutbutton"
 TABLE  = "workouts"
-workoutFreq = 1200
+workoutFreq = 2400
 
 # get number of total workouts
 cursor.execute("SELECT COUNT(*) FROM " + SCHEMA + "." +  TABLE +  ";")
@@ -80,8 +80,13 @@ def timeWorkout():
     Time interval set with variable 'workoutFreq'
     :return: N/A
     """
-    songProcess = Process(target=playSong, args=())
+    global curWorkoutID
+    global curWorkoutBestTime
+    global start
+    global end
+
     while True:
+        songProcess = Process(target=playSong, args=())
         time.sleep(workoutFreq)
         message = getRandWorkout()
         sendToSerial(message)
