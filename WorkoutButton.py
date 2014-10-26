@@ -1,11 +1,9 @@
-import serial # Serial connection
-import mysql.connector # database connection
-from random import randint # random numbers
-from multiprocessing import Process # threading
-from csaudio import* # audio playing
+import serial  # Serial connection
+import mysql.connector  # database connection
+from random import randint  # random numbers
+from multiprocessing import Process  # threading
+from csaudio import*  # audio playing
 import time
-
-
 
 # connect to local database
 cnx = mysql.connector.connect(user = 'root')
@@ -22,7 +20,7 @@ workoutFreq = 2400
 # get number of total workouts
 cursor.execute("SELECT COUNT(*) FROM " + SCHEMA + "." +  TABLE +  ";")
 for (count) in cursor:
-    numWorkouts = count[0] # cursor result comes in as tuple, so we only want first element of tuple
+    numWorkouts = count[0]  # cursor result comes in as tuple, so we only want first element of tuple
 
 # thread for song playing so it doesn't interupt other things
 def playSong():
@@ -52,7 +50,7 @@ def getRandWorkout():
 
     # Get Query results
     for (id, nameTop, nameBot, reps, bestTime) in cursor:
-        message = nameTop.ljust(14) + str(reps) + nameBot.ljust(16) # pad string to 16 characters
+        message = nameTop.ljust(14) + str(reps).rjust(2) + nameBot.ljust(16) # pad string to 16 characters
         curWorkoutBestTime = bestTime
         curWorkoutID = id
         return message
@@ -109,27 +107,24 @@ def buttonPressWorkout():
 
     while True:
         songProcess = Process(target=playSong, args=())
-        size = ser.inWaiting()
-        if ( size > 0 ):
-            pushed = ser.read(size)
+        pushed = ser.read(1)
+        if (pushed == "n"):
+            message = getRandWorkout()
+            sendToSerial(message)
+            songProcess.start()
 
-            if (pushed == "n"):
-                message = getRandWorkout()
-                sendToSerial(message)
-                songProcess.start()
+        elif (pushed == "e"):
+            end = time.time()
+            workoutTime = end - start
+            print workoutTime
+            print curWorkoutBestTime
 
-            elif (pushed == "e"):
-                end = time.time()
-                workoutTime = end - start
-                print workoutTime
-                print curWorkoutBestTime
-
-                if (workoutTime < curWorkoutBestTime):
-                    updateTime(workoutTime)
-                    curWorkoutBestTime = 0
-                    curWorkoutID = 0
-                    start = 0
-                    end = 0
+            if (workoutTime < curWorkoutBestTime):
+                updateTime(workoutTime)
+                curWorkoutBestTime = 0
+                curWorkoutID = 0
+                start = 0
+                end = 0
 
 if __name__ == "__main__":
     timeProcess = Process(target=timeWorkout, args=())
