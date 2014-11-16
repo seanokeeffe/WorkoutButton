@@ -1,12 +1,12 @@
 import serial  # Serial connection
 import mysql.connector  # database connection
 from random import randint  # random numbers
-from multiprocessing import Process  # threading
+from multiprocessing import Process, Lock, RLock  # threading
 from csaudio import*  # audio playing
 import time
 
 # connect to local database
-cnx = mysql.connector.connect(user = 'root')
+cnx = mysql.connector.connect(user = 'root', password='root')
 cursor = cnx.cursor()
 
 # connect to Serial port
@@ -25,6 +25,7 @@ for (count) in cursor:
 # thread for song playing so it doesn't interupt other things
 def playSong():
      play( "Survivor_EyeOfTheTiger.mp3" )
+
 
 # data members for workout time tracking
 start = 0
